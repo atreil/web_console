@@ -1,52 +1,34 @@
-const gulp = require('gulp');
-const browserify = require('browserify');
-const watchify = require('watchify');
-const errorify = require('errorify');
-const del = require('del');
-const tsify = require('tsify');
-const gulpTypings = require('gulp-typings');
-const source = require('vinyl-source-stream');
-const runSequence = require('run-sequence');
+var gulp = require('gulp');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var watchify = require('watchify');
+var tsify = require('tsify');
+var fancy_log = require('fancy-log');
+var paths = {
+    pages: ['src/*.html', 'src/*.css']
+};
 
-function createBrowserifier(entry) {
-    return browserify({
-        basedir: '.',
-        debug: true,
-        entries: [entry],
-        cache: {},
-        packageCache: {}
-    })
-    .plugin(tsify)
-    .plugin(watchify)
-    .plugin(errorify);
-}
+var watchedBrowserify = watchify(browserify({
+    basedir: '.',
+    debug: true,
+    entries: ['src/main.ts'],
+    cache: {},
+    packageCache: {}
+}).plugin(tsify));
 
-function bundle(browserifier, bundleName, destination) {
-    return browserifier
+gulp.task('copy-html', function () {
+    return gulp.src(paths.pages)
+        .pipe(gulp.dest('dist'));
+});
+
+function bundle() {
+    return watchedBrowserify
         .bundle()
-        .pipe(source(bundleName))
-        .pipe(gulp.dest(destination));
+        .on('error', fancy_log)
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest('dist'));
 }
 
-gulp.task('clean', () => {
-    return del('./javascript/**/*')
-});
-
-gulp.task('installTypings', () => {
-    return gulp.src('typings.json').pipe(gulpTypings());
-});
-
-gulp.task('tsc-browserify-src', () => {
-    return bundle(
-        createBrowserifier('./typescript/main.ts'),
-        'bundle.js',
-        'javascript');
-});
-
-gulp.task('default', (done) => {
-    runSequence(['clean', 'installTypings'], 'tsc-browserify-src', () => {
-            console.log('Watching...')
-            gulp.watch(['typescript/**/*.ts'], 
-                       ['tsc-browserify-src']);		
-    });
-});
+gulp.task('default', gulp.series(gulp.parallel('copy-html'), bundle));
+watchedBrowserify.on('update', bundle);
+watchedBrowserify.on('log', fancy_log);
