@@ -15,5 +15,16 @@
   "bugs": {
     "url": "https://github.com/atreil/web_console/issues"
   },
-  "homepage": "https://github.com/atreil/web_console#readme"
+  "homepage": "https://github.com/atreil/web_console#readme",
+  "dependencies": {
+    "browserify": "^16.5.0",
+    "del": "^5.1.0",
+    "errorify": "^0.3.1",
+    "gulp": "^4.0.2",
+    "gulp-typings": "^2.0.4",
+    "run-sequence": "^2.2.1",
+    "tsify": "^4.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^3.11.1"
+  }
 }
