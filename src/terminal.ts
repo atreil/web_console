@@ -6,7 +6,7 @@ export class Terminal {
     // The div element for the console.
     private consoleArea: HTMLDivElement;
 
-    // Index of the cursor.
+    // Index of the cursor
     private cursorIndex: number;
 
     // The current line that the user is editing.
@@ -21,7 +21,9 @@ export class Terminal {
 
         var activeLineElt = document.createElement("div");
         activeLineElt.setAttribute("id", "active-line");
+        activeLineElt.setAttribute("class", "line");
         this.consoleArea.appendChild(activeLineElt);
+        this.setActiveLine("");
     }
 
     /**
@@ -33,11 +35,20 @@ export class Terminal {
     }
 
     public setActiveLine(line: string) {
-        this.updateActiveLine(this.activeLineString(line));
+        this.updateActiveLine(line);
     }
 
-    public activeLineString(line: string): string {
-        return `> ${line}`;
+    public setCursorIndex(idx: number) {
+        this.cursorIndex = idx;
+    }
+
+    public setCursorVisiblity(visible: boolean) {
+        var cursorElt = <HTMLDivElement>this.consoleArea.
+            querySelector(".cursor");
+        
+        if (cursorElt != null) {
+            cursorElt.style.display = visible ? "inline-block" : "none";
+        }
     }
 
     private newLine(line: string) {
@@ -66,7 +77,7 @@ export class Terminal {
         var leftText = line.slice(0, this.cursorIndex);
         var rightText = line.slice(this.cursorIndex);
         var cursorElt = document.createElement("div");
-        cursorElt.setAttribute("id", "cursor");
+        cursorElt.setAttribute("class", "cursor");
 
         // create the new element and remove the existing one
         var activeLineElt = <HTMLDivElement>this.consoleArea.
@@ -77,7 +88,7 @@ export class Terminal {
 
         // add the new line
         activeLineElt.appendChild(document.createTextNode(leftText));
-        activeLineElt.appendChild(document.createTextNode(leftText));
-        activeLineElt.appendChild(document.createTextNode(leftText));
+        activeLineElt.appendChild(cursorElt);
+        activeLineElt.appendChild(document.createTextNode(rightText));
     }
 }
